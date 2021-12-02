@@ -65,50 +65,48 @@ const renderDetails = (id) => {
   const clone = templateUserDetails.content.cloneNode(true);
   const name = clone.querySelector('.details-view-item');
   name.textContent = user.name;
-  const list = clone.querySelector('ul');
+  const containerList = clone.querySelector('ul');
 
-  const friends = templateListTitle.content.cloneNode(true);
-  const friendsTitle = friends.querySelector('li');
-  friendsTitle.textContent = 'Друзья';
+  let friends = [];
   for(let i = 0; i < USERS_LIST_COUNT; i++) {
-    const item = templateListItem.content.cloneNode(true);
-    const friend = item.querySelector('span');
-    friend.textContent = users.find(item => item.id === user.friends[i]).name;
-    friends.appendChild(item);
+    friends.push(users.find(item => item.id === user.friends[i]).name);
   }
-  list.appendChild(friends);
+  renderListUsers(containerList, friends, 'Друзья');
 
-  const noFriends = templateListTitle.content.cloneNode(true);
-  const noFriendsTitle = noFriends.querySelector('li');
-  noFriendsTitle.textContent = 'Не в друзьях';
+  let noFriends = [];
   let count = 0;
   for(let i = 1; i < arrayNameOfUsers.length; i++) {
     if (!user.friends.includes(i) && user.id !== i) {
-      const item = templateListItem.content.cloneNode(true);
-      const noFriend = item.querySelector('span');
-      noFriend.textContent = arrayNameOfUsers[i];
-      noFriends.appendChild(item);
+      noFriends.push(arrayNameOfUsers[i]);
       count++;
     }
     if (count >= USERS_LIST_COUNT) {
       break;
     }
   }
-  list.appendChild(noFriends);
+  renderListUsers(containerList, noFriends, 'Не в друзьях');
 
-  const popular = templateListTitle.content.cloneNode(true);
-  const popularTitle = popular.querySelector('li');
-  popularTitle.textContent = 'Популярные люди';
+  let popular = [];
   for(let i = 0; i < USERS_LIST_COUNT; i++) {
-    const item = templateListItem.content.cloneNode(true);
-    const friend = item.querySelector('span');
-    friend.textContent = arrayPopularUsers[i].name;
-    popular.appendChild(item);
+    popular.push(arrayPopularUsers[i].name);
   }
-  list.appendChild(popular);
+  renderListUsers(containerList, popular, 'Популярные люди');
 
   container.appendChild(clone);
   toggleDetails();
+}
+
+const renderListUsers = (container, list, title) => {
+  const usersList = templateListTitle.content.cloneNode(true);
+  const usersListTitle = usersList.querySelector('li');
+  usersListTitle.textContent = title;
+  list.forEach((item) => {
+    const user = templateListItem.content.cloneNode(true);
+    const userName = user.querySelector('span');
+    userName.textContent = item;
+    usersList.appendChild(user);
+  });
+  container.appendChild(usersList);
 }
 
 const toggleDetails = () => {
