@@ -3,6 +3,7 @@
 const templateUser = document.querySelector('#contacts-item');
 const usersList = document.querySelector('.contacts-list');
 
+const USERS_LIST_COUNT = 3;
 const templateUserDetails = document.querySelector('#contacts-item-details');
 const templateListTitle = document.querySelector('#people-list-title');
 const templateListItem = document.querySelector('#people-list-item');
@@ -13,32 +14,39 @@ let users = [];
 let arrayNameOfUsers = [null];
 let arrayPopularUsers = [];
 
-const getUsers = function () {
+const getUsers = () => {
   fetch('../data.json')
     .then(response => response.json())
     .then((data) => {
-      users = data;
-      renderUsers(users);
-      for(let i = 0; i < users.length; i++) {
-        arrayNameOfUsers.push(users[i].name);
-      };
-      arrayPopularUsers = data.sort((a, b) => {
-        if (b.friends.length === a.friends.length) {
-          return a.name.localeCompare(b.name);
-        }
-        return b.friends.length - a.friends.length;
-      });
+      renderUsers(data);
+      generateData(data);
     });
 }
 
-const renderUsers = function (list) {
+const generateData = (data) => {
+  users = data;
+
+  for(let i = 0; i < users.length; i++) {
+    arrayNameOfUsers.push(users[i].name);
+  };
+
+  arrayPopularUsers = data.sort((a, b) => {
+    if (b.friends.length === a.friends.length) {
+      return a.name.localeCompare(b.name);
+    }
+    return b.friends.length - a.friends.length;
+  });
+
+}
+
+const renderUsers = (list) => {
   if (!list.length) {
       throw Error('Пользователи не найдены');
   }
 
   const fragment = document.createDocumentFragment();
 
-  list.forEach(function (element) {
+  list.forEach((element) => {
       const clone = templateUser.content.cloneNode(true);
       const item = clone.querySelector('li');
 
@@ -52,7 +60,7 @@ const renderUsers = function (list) {
   usersList.appendChild(fragment);
 }
 
-const renderDetails = function (id) {
+const renderDetails = (id) => {
   const user = users.find(item => item.id === id);
   const clone = templateUserDetails.content.cloneNode(true);
   const name = clone.querySelector('.details-view-item');
@@ -62,7 +70,7 @@ const renderDetails = function (id) {
   const friends = templateListTitle.content.cloneNode(true);
   const friendsTitle = friends.querySelector('li');
   friendsTitle.textContent = 'Друзья';
-  for(let i = 0; i < 3; i++) {
+  for(let i = 0; i < USERS_LIST_COUNT; i++) {
     const item = templateListItem.content.cloneNode(true);
     const friend = item.querySelector('span');
     friend.textContent = users.find(item => item.id === user.friends[i]).name;
@@ -82,7 +90,7 @@ const renderDetails = function (id) {
       noFriends.appendChild(item);
       count++;
     }
-    if (count >= 3) {
+    if (count >= USERS_LIST_COUNT) {
       break;
     }
   }
@@ -91,7 +99,7 @@ const renderDetails = function (id) {
   const popular = templateListTitle.content.cloneNode(true);
   const popularTitle = popular.querySelector('li');
   popularTitle.textContent = 'Популярные люди';
-  for(let i = 0; i < 3; i++) {
+  for(let i = 0; i < USERS_LIST_COUNT; i++) {
     const item = templateListItem.content.cloneNode(true);
     const friend = item.querySelector('span');
     friend.textContent = arrayPopularUsers[i].name;
@@ -103,18 +111,18 @@ const renderDetails = function (id) {
   toggleDetails();
 }
 
-const toggleDetails = function () {
+const toggleDetails = () => {
   container.classList.toggle('open');
 }
 
-const closeDetailsHandler = function () {
+const removeDetails = () => {
   toggleDetails();
 
   const content = container.querySelector('.details-content');
   content.remove();
 }
 
-const userHandler = function (evt) {
+const showDetails = (evt) => {
   const user = evt.target.closest('li');
 
   if (user) {
@@ -122,7 +130,7 @@ const userHandler = function (evt) {
   }
 }
 
-usersList.addEventListener('click', userHandler);
-closeDetails.addEventListener('click', closeDetailsHandler);
+usersList.addEventListener('click', showDetails);
+closeDetails.addEventListener('click', removeDetails);
 
 getUsers();
