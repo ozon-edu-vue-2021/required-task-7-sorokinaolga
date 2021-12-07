@@ -11,7 +11,7 @@ const container = document.querySelector('.details-view');
 const closeDetails = container.querySelector('.back');
 
 let users = [];
-let arrayNameOfUsers = [null];
+let arrayNameOfUsers = [];
 let arrayPopularUsers = [];
 
 const getUsers = () => {
@@ -27,7 +27,7 @@ const generateData = (data) => {
   users = data;
 
   for(let i = 0; i < users.length; i++) {
-    arrayNameOfUsers.push(users[i].name);
+    arrayNameOfUsers[users[i].id] = users[i].name;
   };
 
   arrayPopularUsers = data.sort((a, b) => {
@@ -67,28 +67,35 @@ const renderDetails = (id) => {
   name.textContent = user.name;
   const containerList = clone.querySelector('ul');
 
-  let friends = [];
+  const friends = [];
   for(let i = 0; i < USERS_LIST_COUNT; i++) {
     friends.push(users.find(item => item.id === user.friends[i]).name);
   }
   renderListUsers(containerList, friends, 'Друзья');
 
-  let noFriends = [];
-  let count = 0;
+  const noFriends = [];
+  let countNotFriends = 0;
   for(let i = 1; i < arrayNameOfUsers.length; i++) {
     if (!user.friends.includes(i) && user.id !== i) {
       noFriends.push(arrayNameOfUsers[i]);
-      count++;
+      countNotFriends++;
     }
-    if (count >= USERS_LIST_COUNT) {
+    if (countNotFriends >= USERS_LIST_COUNT) {
       break;
     }
   }
   renderListUsers(containerList, noFriends, 'Не в друзьях');
 
-  let popular = [];
-  for(let i = 0; i < USERS_LIST_COUNT; i++) {
-    popular.push(arrayPopularUsers[i].name);
+  const popular = [];
+  let countPopular = 0;
+  for(let i = 0; i < arrayPopularUsers.length; i++) {
+    if (arrayPopularUsers[i].id !== user.id) {
+      popular.push(arrayPopularUsers[i].name);
+      countPopular++;
+    }
+    if (countPopular >= USERS_LIST_COUNT) {
+      break;
+    }
   }
   renderListUsers(containerList, popular, 'Популярные люди');
 
